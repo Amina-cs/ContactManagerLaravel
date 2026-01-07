@@ -22,3 +22,5 @@ RUN mkdir -p storage bootstrap/cache && \
     chmod -R 775 storage bootstrap/cache
 
 EXPOSE 80
+
+
