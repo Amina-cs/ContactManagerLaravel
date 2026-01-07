@@ -33,7 +33,7 @@ spec:
   type: LoadBalancer
   ports:
     - port: 80
-      targetPort: 9000
+      targetPort: 80
       nodePort: 30081
   selector:
     app: laravel

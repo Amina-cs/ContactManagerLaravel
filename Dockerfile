@@ -1,31 +1,24 @@
-FROM php:8.2-fpm
+FROM php:8.2-apache
 
 # Install system dependencies
-RUN apt-get update && apt-get install -y \
-    libpng-dev \
-    libjpeg-dev \
-    libfreetype6-dev \
-    zip \
-    unzip \
-    git \
-    curl
+RUN apt-get update && apt-get install -y libpng-dev libonig-dev libxml2-dev zip unzip git
 
 # Install PHP extensions
-RUN docker-php-ext-install pdo_mysql gd
+RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
 
-# Get Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+# Set Working Directory
+WORKDIR /var/www/html
 
-# Set working directory
-WORKDIR /var/www
-
-# Copy project files
+# Copy code
 COPY . .
 
-# Install dependencies
+# Install Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 RUN composer install --no-dev --optimize-autoloader
 
-# Set permissions
-RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
-EXPOSE 9000
-CMD ["php-fpm"]
+# FIX: Create folders and set permissions safely
+RUN mkdir -p storage bootstrap/cache && \
+    chown -R www-data:www-data storage bootstrap/cache && \
+    chmod -R 775 storage bootstrap/cache
+
+EXPOSE 80
